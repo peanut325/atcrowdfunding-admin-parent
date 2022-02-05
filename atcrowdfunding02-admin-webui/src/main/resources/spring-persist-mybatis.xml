@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
+    <!--扫描properties配置文件-->
+    <context:property-placeholder location="classpath:jdbc.properties"></context:property-placeholder>
+    <!--  数据源配置  -->
+    <bean id="dataSource" class="com.alibaba.druid.pool.DruidDataSource">
+        <property name="username" value="${jdbc.user}"></property>
+        <property name="password" value="${jdbc.password}"></property>
+        <property name="url" value="${jdbc.url}"></property>
+        <property name="driverClassName" value="${jdbc.Driver}"></property>
+    </bean>
+    <!--  配置SqlSessionFactory（设置mybatis配置文件的路径、mapper.xml文件的路径、注入数据源）  -->
+    <bean id="sqlSessionFactory" class="org.mybatis.spring.SqlSessionFactoryBean">
+        <property name="dataSource" ref="dataSource"></property>
+        <property name="configLocation" value="classpath:mybatis/mybatis-config.xml"></property>
+        <property name="mapperLocations" value="classpath*:mybatis/mapper/*Mapper.xml"></property>
+        <property name="plugins">
+            <array>
+                <!-- 配置pagehelper插件-->
+                <bean class="com.github.pagehelper.PageHelper">
+                    <property name="properties">
+                        <props>
+                            <!-- 配置数据库方言（mysql）-->
+                            <prop key="dialect">mysql</prop>
+                            <!-- 配置页码的合理修正-->
+                            <prop key="reasonable">true</prop>
+                        </props>
+                    </property>
+                </bean>
+            </array>
+        </property>
+    </bean>
+    <!--配置与mapper.xml对应的mapper接口的包路径-->
+    <bean class="org.mybatis.spring.mapper.MapperScannerConfigurer">
+        <property name="basePackage" value="org.fall.mapper"></property>
+    </bean>
+</beans>

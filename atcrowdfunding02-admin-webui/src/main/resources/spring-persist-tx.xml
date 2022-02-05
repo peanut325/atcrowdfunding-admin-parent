@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                            http://www.springframework.org/schema/tx http://www.springframework.org/schema/tx/spring-tx.xsd
+                            http://www.springframework.org/schema/aop http://www.springframework.org/schema/aop/spring-aop.xsd">
+    <!--扫描service包，事务方法在service层-->
+    <context:component-scan base-package="org.fall.service"></context:component-scan>
+    <!--配置事务管理器-->
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="dataSource"></property>
+    </bean>
+    <!--配置AOP-->
+    <aop:config>
+        <!--切入点表达式-->
+        <aop:pointcut id="pointcut" expression="execution(* *..*ServiceImpl.*(..))"/>
+        <!--配置事务通知和切入点-->
+        <aop:advisor advice-ref="txAdvice" pointcut-ref="pointcut"></aop:advisor>
+    </aop:config>
+    <!--配置事务通知-->
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+        <tx:attributes>
+            <!--name指定对应的方法名，read-only="true"设置为只读，可以加快查询性能-->
+            <!--查询：通常设置为只读，便于性能优化-->
+            <tx:method name="get*" read-only="true"/>
+            <tx:method name="query*" read-only="true"/>
+            <tx:method name="find*" read-only="true"/>
+            <tx:method name="count*" read-only="true"/>
+            <!--增删改：配置事务传播行为，回滚异常-->
+                <!--
+                默认行为：REQUIRED，表示当前方法必须运行在事务中，如果没有事务，则开启事务，在自己的事务中运行。
+                    如果已经有了已开启的事务，则在当前事务中运行。有可能和其他方法共用同一个事务
+                建议设置：REQUIRES_NEW，表示当前方法必须运行在事务中，如果没有事务，则开启事务，在自己的事务中运行。
+                    和 REQUIRED 的区别是就算现在已经有了已开启的事务，也一定要开启自己的事务，避免和其他方法共用同一个事务。
+                -->
+            <!--rollback-for：表示触发什么异常时，进行回滚；默认值：运行时异常，建议设置为运行时异常+编译期异常-->
+            <tx:method name="save*" propagation="REQUIRES_NEW" rollback-for="java.lang.Exception"></tx:method>
+            <tx:method name="update*" propagation="REQUIRES_NEW" rollback-for="java.lang.Exception"></tx:method>
+            <tx:method name="remove*" propagation="REQUIRES_NEW" rollback-for="java.lang.Exception"></tx:method>
+        </tx:attributes>
+    </tx:advice>
+</beans>

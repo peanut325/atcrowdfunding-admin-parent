@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                            http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                            http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc.xsd">
+    <!--自动扫描包，扫描handler-->
+    <context:component-scan base-package="org.fall.mvc"></context:component-scan>
+    <!--配置SpringMVC驱动注解-->
+    <mvc:annotation-driven/>
+    <!--配置视图解析器-->
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/WEB-INF/"></property>
+        <property name="suffix" value=".jsp"></property>
+    </bean>
+    <!--  基于xml的异常配置  -->
+    <bean id="simpleMappingExceptionResolver"
+          class="org.springframework.web.servlet.handler.SimpleMappingExceptionResolver">
+        <!--   配置异常视图和具体页面的对应关系     -->
+        <property name="exceptionMappings">
+            <props>
+                <!-- key属性指定异常的全类名，标签中写具体对应的视图(这个值要拼前后缀得到的路径)    -->
+                <prop key="java.lang.Exception">system-error</prop>
+                <!-- 通过xml配置拒绝访问异常映射，跳转登陆页面-->
+                <prop key="AccessForbiddenException">admin-login</prop>
+            </props>
+        </property>
+    </bean>
+    <!--  配置视图控制器，代替@RequestMapping  -->
+    <mvc:view-controller path="/admin/to/login/page.html" view-name="admin-login"></mvc:view-controller>
+    <mvc:view-controller path="/admin/to/main/page.html" view-name="admin-main"></mvc:view-controller>
+    <mvc:view-controller path="/admin/to/add/page.html" view-name="admin-add"></mvc:view-controller>
+    <mvc:view-controller path="/role/to/page.html" view-name="role-page"></mvc:view-controller>
+    <mvc:view-controller path="/menu/to/page.html" view-name="menu-page"></mvc:view-controller>
+
+<!--    <mvc:interceptors>-->
+<!--        <mvc:interceptor>-->
+<!--            &lt;!&ndash; 配置将要拦截的资源路径:&ndash;&gt;-->
+<!--            &lt;!&ndash; /** 表示多层路径 /aaa/bbb&ndash;&gt;-->
+<!--            &lt;!&ndash; /* 表示一层路径 /aaa&ndash;&gt;-->
+<!--            <mvc:mapping path="/**"/>-->
+<!--            &lt;!&ndash; 配置不拦截的请求&ndash;&gt;-->
+<!--            <mvc:exclude-mapping path="/admin/to/login/page.html"/>-->
+<!--            <mvc:exclude-mapping path="/admin/do/login.html"/>-->
+<!--            <mvc:exclude-mapping path="/admin/do/logout.html"/>-->
+<!--            &lt;!&ndash; 配置拦截器类&ndash;&gt;-->
+<!--            <bean class="org.fall.mvc.interceptor.LoginInterceptor"></bean>-->
+<!--        </mvc:interceptor>-->
+<!--    </mvc:interceptors>-->
+</beans>
